@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./static/js/echarts.js"></script>
+    <script src="./static/js/echarts-wordcloud.min.js"></script>
+    <title>基于python的招聘岗位数据可视化分析</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        width: 1920px;
+        height: 1080px;
+        /* min-width: 1920px;
+        min-height: 1080px; */
+        background-color: #151637;
+    }
+
+    header {
+        width: 100%;
+        height: 7%;
+        /* background-color: #151637; */
+        /* background-color: #000; */
+        
+        box-shadow: 2px 2px 4px 4px #3232322d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    header>h1 {
+        color: #fff;
+        font-size: 30px;
+    }
+
+    main {
+        width: 100%;
+        height: 93%;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+    }
+
+    #right_bottom,
+    #right_top,
+    #left_top_center,
+    #left_top_left > div,
+    #left_bottom > div
+     {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    #left {
+        width: 68%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+    }
+
+    #left_top {
+        width: 100%;
+        height: 55%;
+        /* background-color: #525252; */
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    #left_top_left {
+        width: 20%;
+        height: 95%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    #left_top_left>div {
+        width: 100%;
+        height: 30%;
+        color: #fff;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    #left_top_left>div h2 {
+        font-size: 30px;
+    }
+
+    #left_top_left div:nth-child(1) {
+        background: linear-gradient(to right, #ff4242, #f75b5b);
+    }
+
+    #left_top_left div:nth-child(2) {
+        background: linear-gradient(to right, #ff42fc, #e55bf7);
+    }
+
+    #left_top_left div:nth-child(3) {
+        background: linear-gradient(to right, #4291ff, #5bb6f7);
+    }
+
+    #left_top_left>div>h4 {
+        /* 竖着排版 */
+        writing-mode: vertical-lr;
+        /* 设置文字竖排 */
+        text-orientation: upright;
+        /* 设置文字方向为直立 */
+        white-space: nowrap;
+        /* 防止文字换行 */
+        letter-spacing: 5px;
+        line-height: 1;
+        /* 设置行高为字体大小 */
+
+    }
+
+    #left_top_center {
+        width: 75%;
+        height: 95%;
+    }
+
+    #left_bottom {
+        width: 100%;
+        height: 40%;
+        /* background-color: #525252; */
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    #left_bottom>div {
+        width: 30%;
+        height: 90%;
+        margin: 0 10px;
+    }
+
+    #right {
+        width: 30%;
+        height: 100%;
+        /* border: 1px solid #000; */
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    #right_top,
+    #right_bottom {
+        width: 90%;
+        height: 45%;
+        background-color: #5a59595a;
+    }
+</style>
+
+<body>
+    <header>
+        <h1>基于python的招聘岗位数据可视化分析</h1>
+    </header>
+    <main>
+        <div id="left">
+            <div id="left_top">
+                <div id="left_top_left">
+                    <div class="">
+                        <h4>岗位数量</h4>
+                        <h2>{{ table_data['job_count']}}</h2>
+                    </div>
+                    <div class="">
+                        <h4>公司数量</h4>
+                        <h2>{{ table_data['company_count']}}</h2>
+                    </div>
+                    <div class="">
+                        <h4>城市数量</h4>
+                        <h2>{{ table_data['city_count']}}</h2>
+                    </div>
+                </div>
+                <div id="left_top_center"></div>
+            </div>
+            <div id="left_bottom">
+                <div id="left_bottom_left"></div>
+                <div id="left_bottom_center"></div>
+                <div id="left_bottom_right"></div>
+            </div>
+        </div>
+        <div id="right">
+            <div id="right_top"></div>
+            <div id="right_bottom"></div>
+        </div>
+    </main>
+    <!-- 定义所有数据 -->
+    <script>
+        let all_data = {{ table_data | tojson}}
+        console.log(all_data);
+        // 定时重新渲染页面
+        setInterval(() => {
+            window.location.reload();
+        }, 1000 * 10
+        );
+        // 对象解构
+        const { 
+            job_salary_name, 
+            job_min_salary, 
+            job_max_salary,
+            city_name,
+            city_values,
+            job_name,
+            job_values,
+            degree_dict,
+            work_year_dict,
+            company_type_dict 
+        } = all_data;
+    </script>
+    <!-- 岗位平均薪资情况 -->
+    <script>
+        var chartDom = document.getElementById('left_top_center');
+        var myChart = echarts.init(chartDom, 'dark');
+        var option;
+        // option
+        option = {
+            title:{
+                text: '岗位平均薪资情况',
+                left: 'center',
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+              dataZoom: [
+                {
+                    type: 'inside',
+                    start: 0,
+                    end: 8
+                },
+                {
+                    start: 0,
+                    end: 8
+                }
+            ],
+            xAxis: {
+                data: job_salary_name,
+                axisLine: {
+                    lineStyle: {
+                        color: '#ccc'
+                    }
+                }
+            },
+            yAxis: {
+                splitLine: { show: false },
+                axisLine: {
+                    lineStyle: {
+                        color: '#ccc'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '最高工资',
+                    type: 'line',
+                    smooth: true,
+                    showAllSymbol: true,
+                    symbol: 'emptyCircle',
+                    symbolSize: 15,
+                    data: job_max_salary
+                },
+                {
+                    name: '最低工资',
+                    type: 'bar',
+                    barWidth: 10,
+                    itemStyle: {
+                        borderRadius: 5,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#14c8d4' },
+                            { offset: 1, color: '#43eec6' }
+                        ])
+                    },
+                    data: job_min_salary
+                },
+                {
+                    name: 'dotted',
+                    type: 'pictorialBar',
+                    symbol: 'rect',
+                    itemStyle: {
+                        color: '#0f375f'
+                    },
+                    symbolRepeat: true,
+                    symbolSize: [12, 4],
+                    symbolMargin: 1,
+                    z: -10,
+                    data: job_max_salary
+                }
+            ]
+        };
+
+        option && myChart.setOption(option);
+
+    </script>
+    <!-- 热门岗位 -->
+    <script>
+        var chartDom = document.getElementById('right_top');
+        var myChart = echarts.init(chartDom, 'dark');
+        var option;
+
+        // 渐变色配置
+        var color = new echarts.graphic.LinearGradient(1, 1, 0, 0, [
+            
+                {
+                    offset: 0,
+                    color: 'rgb(55, 162, 255)'
+                },
+                {
+                    offset: 1,
+                    color: 'rgb(116, 21, 219)'
+                }
+            
+      
+        ]);
+        option = {
+            title: {
+                text: '热门岗位',
+                left: 'center',
+            },
+             grid: {
+                left: '5%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            xAxis: {
+                type: 'value'
+            },
+            yAxis: {
+                type: 'category',
+                data: job_name
+            },
+            series: [
+                {
+                    data: job_values,
+                    type: 'bar',
+                    itemStyle: {
+                        // 设置圆角
+                        borderRadius: [0, 10, 10, 0],
+                        // 可以设置其他样式属性
+                        color: color
+                    }
+                }
+            ]
+        };
+
+        option && myChart.setOption(option);
+    </script>
+    <!-- 学历需求占比 -->
+    <script>
+        var chartDom = document.getElementById('left_bottom_left');
+        var myChart = echarts.init(chartDom, 'dark');
+        var option;
+
+        option = {
+            title: {
+                text: '学历需求占比',
+                left: 'center',
+            },
+            legend: {
+                top: 'bottom'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            series: [
+                {
+                    name: '学历',
+                    type: 'pie',
+                    radius: [0, 100],
+                    // center: ['50%', '50%'],
+                    // roseType: 'area',
+                    itemStyle: {
+                        borderRadius: 8
+                    },
+                    data: degree_dict
+                }
+            ]
+        };
+
+        option && myChart.setOption(option);
+    </script>
+    <!-- 工作经验占比 -->
+    <script>
+        var chartDom = document.getElementById('left_bottom_center');
+        var myChart = echarts.init(chartDom, 'dark');
+        var option;
+
+        option = {
+            title: {
+                text: '工作经验占比',
+                left: 'center',
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                top: 'bottom'
+            },
+            series: [
+                {
+                    name: '工作经验',
+                    type: 'pie',
+                    radius: [0, 100],
+                    // center: ['50%', '50%'],
+                    // roseType: 'area',
+                    itemStyle: {
+                        borderRadius: 8
+                    },
+                    data: work_year_dict
+                }
+            ]
+        };
+
+        option && myChart.setOption(option);
+    </script>
+    <!-- 公司类型占比 -->
+    <script>
+        var chartDom = document.getElementById('left_bottom_right');
+        var myChart = echarts.init(chartDom, 'dark');
+        
+    var option = {
+        title: {
+            text: '公司类型占比',
+            left: 'center',
+        },
+        legend: {
+            top: 'bottom'
+        },
+        tooltip: {
+            trigger: 'item'
+        },
+        series: [
+            {
+                name: '公司类型',
+                type: 'pie',
+                radius: [0, 100],
+                    // center: ['50%', '50%'],
+                    // roseType: 'area',
+                itemStyle: {
+                    borderRadius: 8
+                },
+                data: company_type_dict
+            }
+        ]
+    };
+
+
+        option && myChart.setOption(option);
+    </script>
+    <!-- 各城市平均工资 -->
+    <script>
+        var chartDom = document.getElementById('right_bottom');
+            var myChart = echarts.init(chartDom, 'dark');
+            var option;
+
+            option = {
+                title: {
+                    text: '各城市平均工资',
+                    left: 'center',
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#6a7985'
+                        }
+                    }
+                },
+                
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: city_name
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value'
+                    }
+                ],
+                series: {
+                    name: '平均工资',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 0
+                    },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: 'rgb(0, 221, 255)'
+                            },
+                            {
+                                offset: 1,
+                                color: 'rgb(77, 119, 255)'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: city_values
+                }
+            };
+
+            option && myChart.setOption(option);
+
+    </script>
+</body>
+
+</html>
